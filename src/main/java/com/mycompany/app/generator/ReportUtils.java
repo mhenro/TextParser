@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -67,7 +68,7 @@ public abstract class ReportUtils {
             result.add(str);
             return result;
         }
-        final String[] words = str.split("[- ]");
+        final String[] words = str.split("(?<=[^A-Za-zА-Яа-я0-9])");
 
         result.clear();
         String accum = "";
@@ -98,14 +99,16 @@ public abstract class ReportUtils {
             storage.remove(lastIndex);
             newAccum = parseWord(storage, newAccum, word, maxLength);
         } else if (accum.length() + word.length() < maxLength) {
-            newAccum += word + " ";
+            newAccum += word;// + " ";
         } else if (accum.length() + word.length() == maxLength) {
             newAccum += word;
+        } else if (accum.length() + word.replaceAll(" +$", "").length() == maxLength) { //remove last space if needed
+            newAccum += word.replaceAll(" +$", "");
         } else if (word.length() > maxLength){
             storage.addAll(splitString(word, maxLength));
         } else{
             storage.addAll(Arrays.asList(newAccum));
-            newAccum = word + " ";
+            newAccum = parseWord(storage, word, "", maxLength);
         }
         return newAccum;
     }
