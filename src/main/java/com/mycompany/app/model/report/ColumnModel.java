@@ -19,6 +19,11 @@ public class ColumnModel {
         this.data = column.getTitle();
     }
 
+    public ColumnModel(final String data, final int width) {
+        this.data = data;
+        this.width = width;
+    }
+
     public int getWidth() {
         return width;
     }

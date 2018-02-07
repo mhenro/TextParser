@@ -8,8 +8,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 
 public class App 
 {
@@ -34,10 +32,14 @@ public class App
         final File xml = new File(settingsPath);
 
         final Settings settings = (Settings)unmarshaller.unmarshal(xml);
+        if (settings.getTotalColumnsWidth() > settings.getPage().getWidth()) {
+            throw new RuntimeException("Wrong settings: Sum of column's width is larger than whole page width!");
+        }
         settings.setDataPath(dataPath);
         if (destPath != null) {
             settings.setDestPath(destPath);
         }
+
         return settings;
     }
 }

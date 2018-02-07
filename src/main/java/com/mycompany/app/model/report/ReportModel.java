@@ -4,9 +4,7 @@ import com.mycompany.app.model.settings.Column;
 import com.mycompany.app.model.settings.Settings;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -17,7 +15,7 @@ public class ReportModel {
     public static String PAGE_DELEMITER = "~";
     public static String DATA_DELEMITER = "|";
     public static String ROW_DELEMITER = "-";
-    public static String RETURN_CHARACTER = "\n";
+    public static String RETURN_CHARACTER = "\r\n";
     public static String SPACE = " ";
 
     private List<List<String>> data;
@@ -25,6 +23,7 @@ public class ReportModel {
     private int pageWidth;
     private int pageHeight;
     private List<ColumnModel> columns;
+    private List<RowModel> rows;
     private RowModel header;
 
 
@@ -36,7 +35,11 @@ public class ReportModel {
     public List<String> getStrings() {
         List<String> strings = new ArrayList<>();
         strings.add(printPageHeader());
-        strings.add(printRawDelemiter());
+        strings.add(printRowDelemiter());
+        getRows().stream().forEach(row -> {
+            strings.add(row.renderRow());
+            strings.add(printRowDelemiter());
+        });
         return strings;
     }
 
@@ -44,7 +47,7 @@ public class ReportModel {
         return this.header.renderRow();
     }
 
-    public String printRawDelemiter() {
+    public String printRowDelemiter() {
         return IntStream.range(0, getPageWidth()).mapToObj(i -> ROW_DELEMITER).collect(Collectors.joining("")) + RETURN_CHARACTER;
     }
 
@@ -54,7 +57,8 @@ public class ReportModel {
         createHeader(settings);
 
         for (List<String> columnData : getData()) {
-            //getColumns()
+            final RowModel row = new RowModel(RowModel.createColumnModel(columnData, settings));
+            getRows().add(row);
         }
     }
 
@@ -66,37 +70,6 @@ public class ReportModel {
         }
         this.header = new RowModel(columns);
         this.header.setWidth(getPageWidth());
-    }
-
-    public static String fillEmptySpace(final String str, final int maxLength) {
-        if (str.length() < maxLength) {
-            return str + IntStream.range(0, maxLength - str.length()).mapToObj(i -> SPACE).collect(Collectors.joining(""));
-        }
-        return str;
-    }
-
-    /* recursive method */
-    public static List<String> splitString(final String str, final int maxLength) {
-        List<String> result = new ArrayList<>();
-        if (str.length() <= maxLength) {
-            result.add(str);
-            return result;
-        }
-        final String[] words = str.split("[-!@#$%&*() ]");
-        Arrays.asList(words).stream().forEach(word -> {
-            if (word.length() > maxLength) {
-                String first = word.substring(0, maxLength);
-                String second = word.substring(maxLength);
-                result.add(first);
-                result.addAll(splitString(second, maxLength));
-            } else {
-                result.add(word);
-            }
-        });
-
-        //result.stream().forEach(System.out::println);
-
-        return result;
     }
 
     public List<List<String>> getData() {
@@ -143,6 +116,17 @@ public class ReportModel {
 
     private void setColumns(List<ColumnModel> columns) {
         this.columns = columns;
+    }
+
+    public List<RowModel> getRows() {
+        if (rows == null) {
+            rows = new ArrayList<>();
+        }
+        return rows;
+    }
+
+    public void setRows(List<RowModel> rows) {
+        this.rows = rows;
     }
 
     public RowModel getHeader() {

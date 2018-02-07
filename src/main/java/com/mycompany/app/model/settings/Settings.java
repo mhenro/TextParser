@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by mhenr on 07.02.2018.
@@ -52,5 +53,19 @@ public class Settings implements Serializable {
 
     public void setDestPath(String destPath) {
         this.destPath = destPath;
+    }
+
+    @XmlTransient
+    public int getTotalColumnsWidth() {
+        final int columnWidth = columns.stream()
+                .map(column -> column.getWidth())
+                .collect(Collectors.summingInt(n -> n));
+
+        return columnWidth + getTotalColumnsOffset();
+    }
+
+    @XmlTransient
+    private int getTotalColumnsOffset() {
+        return columns.size() * 3;  //3 is DATA_DELEMITER + SPACE + SPACE
     }
 }
