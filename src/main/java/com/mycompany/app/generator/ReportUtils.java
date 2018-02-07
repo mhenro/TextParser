@@ -68,7 +68,8 @@ public abstract class ReportUtils {
             result.add(str);
             return result;
         }
-        final String[] words = str.split("(?<=[^A-Za-zА-Яа-я0-9])");
+        //final String[] words = str.split("(?<=[^A-Za-zА-Яа-я0-9])");
+        final String[] words = str.split("(?<=[^A-Za-z0-9\\p{InCYRILLIC}])");
 
         result.clear();
         String accum = "";
