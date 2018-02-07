@@ -19,7 +19,7 @@ public class RowModelTest {
         final Settings settings = new Settings();
         settings.setPage(createPage());
         settings.setColumns(createColumns(3));
-        List<ColumnModel> result = RowModel.createColumnModel(createColumnData(3), settings);
+        List<ColumnModel> result = RowModel.createColumnModel(createColumnData(3, "data"), settings);
         Assert.assertEquals(result.size(), 3);
         Assert.assertEquals(result.get(0).getData(), "data #0");
         Assert.assertEquals(result.get(1).getData(), "data #1");
@@ -27,6 +27,28 @@ public class RowModelTest {
         Assert.assertEquals(result.get(0).getWidth(), 7);
         Assert.assertEquals(result.get(1).getWidth(), 8);
         Assert.assertEquals(result.get(2).getWidth(), 9);
+    }
+
+    @Test
+    public void renderRowShort() throws Exception {
+        final Settings settings = new Settings();
+        settings.setPage(createPage());
+        settings.setColumns(createColumns(3));
+        List<ColumnModel> columnModel = RowModel.createColumnModel(createColumnData(3, "data"), settings);
+        final RowModel row = new RowModel(columnModel);
+        String result = row.renderRow();
+        Assert.assertEquals(result, "| data #0 | data #1  | data #2   |\r\n");
+    }
+
+    @Test
+    public void renderRowLong() throws Exception {
+        final Settings settings = new Settings();
+        settings.setPage(createPage());
+        settings.setColumns(createColumns(3));
+        List<ColumnModel> columnModel = RowModel.createColumnModel(createColumnData(3, "data testtest aaa-bbb"), settings);
+        final RowModel row = new RowModel(columnModel);
+        String result = row.renderRow();
+        Assert.assertEquals(result, "| data    | data     | data      |\r\n| testtes | testtest | testtest  |\r\n| t aaa-  |  aaa-bbb | aaa-bbb # |\r\n| bbb #0  | #1       | 2         |\r\n");
     }
 
     private Page createPage() {
@@ -45,7 +67,7 @@ public class RowModelTest {
         }).collect(Collectors.toList());
     }
 
-    private List<String> createColumnData(final int count) {
-        return IntStream.range(0, count).mapToObj(n -> "data #" + n).collect(Collectors.toList());
+    private List<String> createColumnData(final int count, final String template) {
+        return IntStream.range(0, count).mapToObj(n -> template + " #" + n).collect(Collectors.toList());
     }
 }
