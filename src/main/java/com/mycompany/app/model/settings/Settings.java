@@ -3,6 +3,7 @@ package com.mycompany.app.model.settings;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import java.util.List;
 public class Settings implements Serializable {
     private Page page;
     private List<Column> columns;
+    private String dataPath;
+    private String destPath;
 
     @XmlElement(name = "page")
     public Page getPage() {
@@ -31,5 +34,23 @@ public class Settings implements Serializable {
 
     public void setColumns(List<Column> columns) {
         this.columns = columns;
+    }
+
+    @XmlTransient
+    public String getDataPath() {
+        return dataPath;
+    }
+
+    public void setDataPath(String dataPath) {
+        this.dataPath = dataPath;
+    }
+
+    @XmlTransient
+    public String getDestPath() {
+        return destPath;
+    }
+
+    public void setDestPath(String destPath) {
+        this.destPath = destPath;
     }
 }
