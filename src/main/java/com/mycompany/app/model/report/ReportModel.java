@@ -41,7 +41,7 @@ public class ReportModel {
         long pageOffset = 0;
         for (final RowModel row : getRows()) {
             pageOffset = tempBuffer.stream().flatMap(str -> Arrays.asList(str.split(RETURN_CHARACTER)).stream()).count();
-            if (pageOffset + row.getHeight() >= pageHeight) {
+            if (pageOffset + row.getHeight() > pageHeight) {
                 strings.addAll(tempBuffer);
                 strings.add(PAGE_DELEMITER + RETURN_CHARACTER);
                 tempBuffer.clear();
@@ -51,7 +51,10 @@ public class ReportModel {
                 tempBuffer.add(printRowDelemiter());
             } else {
                 tempBuffer.add(row.renderRow());
-                tempBuffer.add(printRowDelemiter());
+                pageOffset = tempBuffer.stream().flatMap(str -> Arrays.asList(str.split(RETURN_CHARACTER)).stream()).count();
+                if (pageOffset < pageHeight) {
+                    tempBuffer.add(printRowDelemiter());
+                }
             }
         }
         strings.addAll(tempBuffer);
