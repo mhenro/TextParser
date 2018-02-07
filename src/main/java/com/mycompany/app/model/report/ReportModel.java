@@ -4,6 +4,7 @@ import com.mycompany.app.model.settings.Column;
 import com.mycompany.app.model.settings.Settings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -34,12 +35,26 @@ public class ReportModel {
 
     public List<String> getStrings() {
         List<String> strings = new ArrayList<>();
-        strings.add(printPageHeader());
-        strings.add(printRowDelemiter());
-        getRows().stream().forEach(row -> {
-            strings.add(row.renderRow());
-            strings.add(printRowDelemiter());
-        });
+        List<String> tempBuffer = new ArrayList<>();
+        tempBuffer.add(printPageHeader());
+        tempBuffer.add(printRowDelemiter());
+        long pageOffset = 0;
+        for (final RowModel row : getRows()) {
+            pageOffset = tempBuffer.stream().flatMap(str -> Arrays.asList(str.split(RETURN_CHARACTER)).stream()).count();
+            if (pageOffset + row.getHeight() >= pageHeight) {
+                strings.addAll(tempBuffer);
+                strings.add(PAGE_DELEMITER + RETURN_CHARACTER);
+                tempBuffer.clear();
+                tempBuffer.add(printPageHeader());
+                tempBuffer.add(printRowDelemiter());
+                tempBuffer.add(row.renderRow());
+                tempBuffer.add(printRowDelemiter());
+            } else {
+                tempBuffer.add(row.renderRow());
+                tempBuffer.add(printRowDelemiter());
+            }
+        }
+        strings.addAll(tempBuffer);
         return strings;
     }
 
