@@ -23,7 +23,6 @@ public class ReportModel {
     private int pageCount;
     private int pageWidth;
     private int pageHeight;
-    private List<ColumnModel> columns;
     private List<RowModel> rows;
     private RowModel header;
 
@@ -38,7 +37,7 @@ public class ReportModel {
         List<String> tempBuffer = new ArrayList<>();
         tempBuffer.add(printPageHeader());
         tempBuffer.add(printRowDelemiter());
-        long pageOffset = 0;
+        long pageOffset;
         for (final RowModel row : getRows()) {
             pageOffset = tempBuffer.stream().flatMap(str -> Arrays.asList(str.split(RETURN_CHARACTER)).stream()).count();
             if (pageOffset + row.getHeight() > pageHeight) {
@@ -61,11 +60,11 @@ public class ReportModel {
         return strings;
     }
 
-    public String printPageHeader() {
+    private String printPageHeader() {
         return this.header.renderRow();
     }
 
-    public String printRowDelemiter() {
+    private String printRowDelemiter() {
         return IntStream.range(0, getPageWidth()).mapToObj(i -> ROW_DELEMITER).collect(Collectors.joining("")) + RETURN_CHARACTER;
     }
 
@@ -123,17 +122,6 @@ public class ReportModel {
 
     private void setPageHeight(int pageHeight) {
         this.pageHeight = pageHeight;
-    }
-
-    public List<ColumnModel> getColumns() {
-        if (columns == null) {
-            columns = new ArrayList<>();
-        }
-        return columns;
-    }
-
-    private void setColumns(List<ColumnModel> columns) {
-        this.columns = columns;
     }
 
     public List<RowModel> getRows() {

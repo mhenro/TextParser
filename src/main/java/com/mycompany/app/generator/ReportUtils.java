@@ -8,13 +8,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * Created by berlogic on 2/7/18.
- */
 public abstract class ReportUtils {
     public static void generateReport(final Settings settings, final ReportModel report) throws IOException {
         List<String> strings = report.getStrings();
@@ -26,27 +22,7 @@ public abstract class ReportUtils {
     }
 
     public static ReportModel createReportModel(final Settings settings) throws IOException {
-        final File file = new File(settings.getDataPath());
-        final InputStream is = new FileInputStream(file);
-        final BufferedReader buf = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-16")));
-        String line;
-        String[] dataArr;
-        List<List<String>> reportData = new ArrayList<>();
-
-        while(true) {
-            line = buf.readLine();
-            if (line == null) {
-                break;
-            } else {
-                dataArr = line.split("\t");
-                if (dataArr.length != settings.getColumns().size()) {
-                    throw new RuntimeException("Data is not compatible with settings!");
-                }
-                reportData.add(Arrays.asList(dataArr));
-            }
-        }
-        buf.close();
-
+        List<List<String>> reportData = loadDataFromFile(settings);
         final ReportModel report = new ReportModel(settings, reportData);
         return report;
     }
@@ -68,9 +44,7 @@ public abstract class ReportUtils {
             result.add(str);
             return result;
         }
-        //final String[] words = str.split("(?<=[^A-Za-zА-Яа-я0-9])");
         final String[] words = str.split("(?<=[^A-Za-z0-9\\p{InCYRILLIC}])");
-
         result.clear();
         String accum = "";
         for (String word : words) {
@@ -92,15 +66,16 @@ public abstract class ReportUtils {
         return result;
     }
 
+    /* recursive method */
     private static String parseWord(final List<String> storage, final String accum, final String word, final int maxLength) {
         String newAccum = accum;
-        final int lastIndex = storage.size() > 0 ? storage.size() - 1 : 0;
+        final int lastIndex = storage.size() - 1;
         if (newAccum.isEmpty() && !storage.isEmpty() && storage.get(lastIndex).length() + word.length() <= maxLength) {
             newAccum = storage.get(lastIndex);
             storage.remove(lastIndex);
             newAccum = parseWord(storage, newAccum, word, maxLength);
         } else if (accum.length() + word.length() < maxLength) {
-            newAccum += word;// + " ";
+            newAccum += word;
         } else if (accum.length() + word.length() == maxLength) {
             newAccum += word;
         } else if (accum.length() + word.replaceAll(" +$", "").length() == maxLength) { //remove last space if needed
@@ -112,6 +87,30 @@ public abstract class ReportUtils {
             newAccum = parseWord(storage, word, "", maxLength);
         }
         return newAccum;
+    }
+
+    private static List<List<String>> loadDataFromFile(final Settings settings) throws IOException {
+        final File file = new File(settings.getDataPath());
+        final InputStream is = new FileInputStream(file);
+        final List<List<String>> reportData = new ArrayList<>();
+        try (final BufferedReader buf = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-16")))) {
+            String line;
+            String[] dataArr;
+
+            while (true) {
+                line = buf.readLine();
+                if (line == null) {
+                    break;
+                } else {
+                    dataArr = line.split("\t");
+                    if (dataArr.length != settings.getColumns().size()) {
+                        throw new RuntimeException("Data is not compatible with settings!");
+                    }
+                    reportData.add(Arrays.asList(dataArr));
+                }
+            }
+        }
+        return reportData;
     }
 
     private static void saveToFile(final Settings settings, final List<String> strings) throws IOException {

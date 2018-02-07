@@ -26,20 +26,21 @@ public class App
         final String settingsPath = args[0];
         final String dataPath = args[1];
         final String destPath = args.length > 2 ? args[2] : null;
+        final Settings settings = createSettingsFromXml(settingsPath);
+        settings.setDataPath(dataPath);
+        settings.setDestPath(destPath);
 
+        return settings;
+    }
+
+    private static Settings createSettingsFromXml(final String settingsPath) throws JAXBException {
         final JAXBContext jaxbContext = JAXBContext.newInstance(Settings.class);
         final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         final File xml = new File(settingsPath);
-
         final Settings settings = (Settings)unmarshaller.unmarshal(xml);
         if (settings.getTotalColumnsWidth() > settings.getPage().getWidth()) {
             throw new RuntimeException("Wrong settings: Sum of column's width is larger than whole page width!");
         }
-        settings.setDataPath(dataPath);
-        if (destPath != null) {
-            settings.setDestPath(destPath);
-        }
-
         return settings;
     }
 }

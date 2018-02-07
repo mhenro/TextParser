@@ -12,7 +12,6 @@ public class ColumnModel {
     private int width;
     private int height;
     private String data;
-    private List<String> rows;
 
     public ColumnModel(final Column column) {
         this.width = column.getWidth();
@@ -46,13 +45,5 @@ public class ColumnModel {
 
     public void setData(String data) {
         this.data = data;
-    }
-
-    public List<String> getRows() {
-        return rows;
-    }
-
-    public void setRows(List<String> rows) {
-        this.rows = rows;
     }
 }

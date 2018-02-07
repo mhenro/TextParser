@@ -5,7 +5,6 @@ import com.mycompany.app.model.settings.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by berlogic on 2/7/18.
