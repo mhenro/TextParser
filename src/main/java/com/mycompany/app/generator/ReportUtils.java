@@ -15,7 +15,7 @@ public abstract class ReportUtils {
     public static void generateReport(final Settings settings, final ReportModel report) throws IOException {
         List<String> strings = report.getStrings();
         if (settings.getDestPath() == null || settings.getDestPath().isEmpty()) {
-            strings.forEach(System.out::println);
+            strings.forEach(System.out::print);
         } else {
             saveToFile(settings, strings);
         }
